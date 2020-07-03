@@ -104,18 +104,24 @@ class ConvXD(nn.Module):
 
 
 if __name__ == '__main__':
+    import os
 
-    model = ConvXD(dimension=4, in_channels=3, out_channels=6, kernel=(1, 3, 3, 3), padding=(0, 1, 1, 1),
+    os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+
+    model = ConvXD(dimension=4, in_channels=64, out_channels=64, kernel=(9, 9, 7, 3), padding=(4, 4, 3, 1),
                    stride=(1, 1, 1, 1), is_bias=True)
+
+    # model = nn.Conv2d(in_channels=128, out_channels=128, kernel_size=9, padding=4, stride=1, bias=True)
+    model.cuda()
 
     model.apply(weights_init_xavier)
 
-    x = torch.arange(0, 1125).resize_(1, 3, 5, 3, 5, 5).float()
-    label = torch.ones(1, 6, 5, 3, 5, 5).float()
+    x = torch.ones(10, 64, 5, 5, 5, 5).float().cuda()
+    label = torch.ones(10, 64, 5, 5, 5, 5).float().cuda()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     criterion_train = torch.nn.L1Loss()
 
-    for i in range(1000):
+    for i in range(2000):
         optimizer.zero_grad()
         y = model(x)
         loss = criterion_train(y, label)
